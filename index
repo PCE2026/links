@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Painel da Equipa PCE</title>
+<style>
+:root{--bg:#f4f5f7;--card:#fff;--txt:#1f2937;--muted:#6b7280;--line:#e5e7eb;--acc:#1e3a5f}
+@media (prefers-color-scheme:dark){:root{--bg:#111418;--card:#1b1f25;--txt:#e5e7eb;--muted:#9ca3af;--line:#2d333b;--acc:#93c5fd}}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--txt);line-height:1.45}
+.wrap{max-width:960px;margin:0 auto;padding:24px 16px 60px}
+header h1{margin:0 0 4px;font-size:1.6rem;color:var(--acc)}
+header p{margin:0;color:var(--muted)}
+#login{max-width:360px;margin:15vh auto 0;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:28px}
+#login h1{margin:0 0 6px;font-size:1.35rem;color:var(--acc)}
+#login p{margin:0 0 18px;color:var(--muted);font-size:.95rem}
+input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:9px;font-size:1rem;background:var(--bg);color:var(--txt)}
+button{cursor:pointer;font:inherit}
+.btn{width:100%;margin-top:12px;padding:11px;border:0;border-radius:9px;background:var(--acc);color:#fff;font-weight:600}
+@media (prefers-color-scheme:dark){.btn{color:#111418}}
+#erro{color:#dc2626;font-size:.9rem;min-height:1.2em;margin-top:8px}
+.bar{display:flex;gap:10px;margin:20px 0 8px;flex-wrap:wrap}
+.bar input{flex:1;min-width:200px}
+.sair{padding:10px 14px;border:1px solid var(--line);border-radius:9px;background:var(--card);color:var(--txt)}
+section{margin-top:26px}
+section h2{font-size:1.1rem;margin:0 0 10px;padding-left:10px;border-left:5px solid var(--c)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.card a.nome{font-weight:600;color:var(--txt);text-decoration:none}
+.card a.nome:hover{color:var(--c);text-decoration:underline}
+.nota{font-size:.88rem;color:var(--muted)}
+.cred{font-size:.88rem;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.cred span.l{color:var(--muted)}
+code{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:2px 6px;font-size:.88rem;word-break:break-all}
+.cp{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:6px;padding:1px 7px;font-size:.78rem}
+.cp.ok{color:#059669;border-color:#059669}
+.abrir{align-self:flex-start;font-size:.85rem;color:var(--c);text-decoration:none;font-weight:600}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<div id="login">
+  <h1>Painel da Equipa PCE</h1>
+  <p>Agrupamento de Escolas Templários de Tomar — introduz a palavra-passe da equipa.</p>
+  <form id="f"><input id="pw" type="password" placeholder="Palavra-passe" autocomplete="current-password" autofocus>
+  <button class="btn" type="submit">Entrar</button></form>
+  <div id="erro"></div>
+</div>
+
+<div id="app" class="wrap hide">
+  <header><h1>Painel da Equipa PCE</h1><p>Links, folhas de dados e palavras-passe das aplicações.</p></header>
+  <div class="bar"><input id="q" placeholder="Pesquisar (ex.: inscrições, sheets, CAA)…"><button class="sair" id="sair">Sair</button></div>
+  <div id="conteudo"></div>
+</div>
+
+<script>
+const CIFRA = "qz2AfAri/KjNc+G6xatheg==.gs9NQLe9o81ZksXJ.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";
+const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function decifrar(pw){
+  const [salt, iv, ct] = CIFRA.split(".").map(b64);
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveKey"]);
+  const key = await crypto.subtle.deriveKey({name:"PBKDF2", salt, iterations:200000, hash:"SHA-256"}, base, {name:"AES-GCM", length:256}, false, ["decrypt"]);
+  const pt = await crypto.subtle.decrypt({name:"AES-GCM", iv}, key, ct);
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const credLinha = (rot, val) => `<div class="cred"><span class="l">${esc(rot)}:</span><code>${esc(val)}</code><button class="cp" data-v="${esc(val)}">copiar</button></div>`;
+
+function render(d){
+  let h = `<section style="--c:#475569"><h2>Contas Google / e-mail</h2><div class="grid">`;
+  d.contas.forEach(c => {
+    h += `<div class="card" data-s="${esc((c.nome+" "+c.user+" "+c.nota).toLowerCase())}"><strong>${esc(c.nome)}</strong>`
+      + credLinha("Conta", c.user) + (c.pw ? credLinha("Palavra-passe", c.pw) : "")
+      + (c.nota ? `<div class="nota">${esc(c.nota)}</div>` : "") + `</div>`;
+  });
+  h += `</div></section>`;
+  d.projetos.forEach(p => {
+    h += `<section style="--c:${esc(p.cor)}"><h2>${esc(p.titulo)}</h2><div class="grid">`;
+    p.itens.forEach(i => {
+      h += `<div class="card" data-s="${esc((p.titulo+" "+i.nome+" "+(i.nota||"")).toLowerCase())}">`
+        + `<a class="nome" href="${esc(i.url)}" target="_blank" rel="noopener">${esc(i.nome)}</a>`
+        + (i.nota ? `<div class="nota">${esc(i.nota)}</div>` : "")
+        + (i.conta ? credLinha("Conta", i.conta) : "")
+        + (i.pw ? credLinha("Palavra-passe", i.pw) : "")
+        + (i.senhas||[]).map(s => credLinha("Senha " + s[0], s[1])).join("")
+        + `<a class="abrir" href="${esc(i.url)}" target="_blank" rel="noopener">Abrir ↗</a></div>`;
+    });
+    h += `</div></section>`;
+  });
+  document.getElementById("conteudo").innerHTML = h;
+}
+
+function mostrar(d){
+  render(d);
+  document.getElementById("login").classList.add("hide");
+  document.getElementById("app").classList.remove("hide");
+}
+
+document.getElementById("f").addEventListener("submit", async e => {
+  e.preventDefault();
+  const pw = document.getElementById("pw").value;
+  try { const d = await decifrar(pw); try{sessionStorage.setItem("pce_pw", pw)}catch(_){}; mostrar(d); }
+  catch(_) { document.getElementById("erro").textContent = "Palavra-passe incorreta."; }
+});
+document.getElementById("sair").onclick = () => { try{sessionStorage.removeItem("pce_pw")}catch(_){}; location.reload(); };
+document.getElementById("q").addEventListener("input", e => {
+  const q = e.target.value.toLowerCase().trim();
+  document.querySelectorAll(".card").forEach(c => c.classList.toggle("hide", q && !c.dataset.s.includes(q)));
+  document.querySelectorAll("section").forEach(s => s.classList.toggle("hide", !s.querySelector(".card:not(.hide)")));
+});
+document.addEventListener("click", e => {
+  const b = e.target.closest(".cp"); if(!b) return;
+  navigator.clipboard.writeText(b.dataset.v).then(() => { b.textContent="copiado"; b.classList.add("ok"); setTimeout(()=>{b.textContent="copiar"; b.classList.remove("ok")},1500); });
+});
+(async () => { let pw=null; try{pw=sessionStorage.getItem("pce_pw")}catch(_){}; if(pw){ try{ mostrar(await decifrar(pw)); }catch(_){} } })();
+</script>
+</body>
+</html>
